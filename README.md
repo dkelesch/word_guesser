@@ -1,4 +1,4 @@
-# Word Guesser/Kelime Oyunu (Local) Web App
+# Word Guesser/Kelime Oyunu Web App
 
 A simple web application for a word guessing game. The game presents words one at a time, displaying blank slots for each letter. Players can reveal letters randomly or reveal the entire word. Runs locally.
 
