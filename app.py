@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, jsonify
+from flask import Flask, render_template, session, jsonify, request
 import random
 
 app = Flask(__name__)
@@ -114,5 +114,32 @@ def reveal_word():
         'message': "Kelime açıklandı!"
     })
 
+@app.route('/reveal_letter_at_index', methods=['POST'])
+def reveal_letter_at_index():
+    if 'current_word' not in session or not session['current_word']:
+        return jsonify({'error': 'No active word'}), 400
+    data = request.get_json()
+    index = data.get('index')
+    if index is None or not isinstance(index, int):
+        return jsonify({'error': 'Invalid index provided'}), 400
+    current_word = session['current_word']
+    displayed_letters = list(session['displayed_letters'])
+    if 0 <= index < len(current_word):
+        # Only reveal if it's an unrevealed slot
+        if displayed_letters[index] == '_':
+            displayed_letters[index] = current_word[index]
+            session['displayed_letters'] = displayed_letters
+            message = f"Harf açıklandı: '{current_word[index]}'"
+            if all(slot != '_' for slot in displayed_letters):
+                message += " - Kelime açıklandı!"
+            return jsonify({
+                'slots': displayed_letters,
+                'message': message
+            })
+        else:
+            return jsonify({'slots': displayed_letters,'message': "Bu harf zaten açık."})
+    else:
+        return jsonify({'error': 'Index out of bounds'}), 400
+    
 if __name__ == '__main__':
     app.run(debug=True)
